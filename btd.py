@@ -115,12 +115,15 @@ class CNNModel(nn.Module):
             nn.Conv2d(128, 256, 3, padding=1),
             nn.BatchNorm2d(256),
             nn.ReLU(),
-            nn.MaxPool2d(2, 2)
+            nn.MaxPool2d(2, 2),
+
+            # ✅ Global Adaptive Average Pooling
+            nn.AdaptiveAvgPool2d((1, 1))
         )
 
         self.classifier = nn.Sequential(
             nn.Dropout(0.5),
-            nn.Linear(256 * 14 * 14, 512),
+            nn.Linear(256, 512),
             nn.ReLU(),
             nn.Dropout(0.3),
             nn.Linear(512, 4)
@@ -128,7 +131,7 @@ class CNNModel(nn.Module):
 
     def forward(self, x):
         x = self.features(x)
-        x = x.view(x.size(0), -1)
+        x = torch.flatten(x, 1)
         return self.classifier(x)
 
 
@@ -220,7 +223,7 @@ def test_model(model):
     print(f"Macro-averaged Precision: {precision:.4f}, Recall: {recall:.4f}, F1-score: {f1_score:.4f}")
 
 
-train_model(model, criterion, optimizer, scheduler, num_epochs=50)
+train_model(model, criterion, optimizer, scheduler, num_epochs=20)
 model.load_state_dict(torch.load(save_path))
 test_model(model)
 
