@@ -2,30 +2,32 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import transforms
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader, Dataset, random_split
 from PIL import Image
-from sklearn.metrics import confusion_matrix, classification_report
-from sklearn.metrics import precision_recall_fscore_support
+from sklearn.metrics import confusion_matrix, classification_report, precision_recall_fscore_support
 import matplotlib.pyplot as plt
-import matplotlib
-import os
 import seaborn as sns
-matplotlib.use('TkAgg')
-print("All Import Done")
+import os
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print("Device:", device)
 
-print("Device Imported ", device)
-
+# ✅ Normalized Transform (mean/std from ImageNet for stability)
 train_transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.RandomHorizontalFlip(),
+    transforms.RandomRotation(10),
+    transforms.ColorJitter(brightness=0.2, contrast=0.2),
     transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                         std=[0.229, 0.224, 0.225])
 ])
 
 test_transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                         std=[0.229, 0.224, 0.225])
 ])
 
 print("Train Transform: ", train_transform)
