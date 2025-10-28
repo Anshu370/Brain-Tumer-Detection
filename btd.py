@@ -6,8 +6,11 @@ from torch.utils.data import DataLoader, Dataset, random_split
 from PIL import Image
 from sklearn.metrics import confusion_matrix, classification_report, precision_recall_fscore_support
 import matplotlib.pyplot as plt
+import matplotlib
 import seaborn as sns
 import os
+
+matplotlib.use('TkAgg')
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("Device:", device)
@@ -29,9 +32,6 @@ test_transform = transforms.Compose([
     transforms.Normalize(mean=[0.485, 0.456, 0.406],
                          std=[0.229, 0.224, 0.225])
 ])
-
-print("Train Transform: ", train_transform)
-print("Test Transform: ", test_transform)
 
 class BrainTumorDataset(Dataset):
     def __init__(self, root_dir, transform=None):
@@ -70,50 +70,40 @@ train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
 test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
+print("Loaded")
+
 # Model
 class CNNModel(nn.Module):
-    # def __init__(self):
-    #     super(CNNModel, self).__init__()
-    #     self.conv1 = nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, stride=1, padding=1)
-    #     self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=1, padding=1)
-    #     self.conv3 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1)
-    #     self.pool = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
-    #     self.fc1 = nn.Linear(64 * 28 * 28, 512)
-    #     self.fc2 = nn.Linear(512, 4)  # 4 classes
-    #
-    # def forward(self, x):
-    #     x = self.pool(nn.functional.relu(self.conv1(x)))
-    #     x = self.pool(nn.functional.relu(self.conv2(x)))
-    #     x = self.pool(nn.functional.relu(self.conv3(x)))
-    #     x = x.view(-1, 64 * 28 * 28)  # Flatten
-    #     x = nn.functional.relu(self.fc1(x))
-    #     x = self.fc2(x)
-    #     return x
-
     def __init__(self):
         super(CNNModel, self).__init__()
         self.features = nn.Sequential(
             # convo layer1
-            nn.Conv2d(3, 32, 3, padding=1),
+            nn.Conv2d(3, 32, 3, padding=1, bias=False),
             nn.BatchNorm2d(32),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
 
             # convo layer2
-            nn.Conv2d(32, 64, 3, padding=1),
+            nn.Conv2d(32, 64, 3, padding=1, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
 
             # convo layer3
-            nn.Conv2d(64, 128, 3, padding=1),
+            nn.Conv2d(64, 128, 3, padding=1, bias=False),
             nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
 
             # convo layer4
-            nn.Conv2d(128, 256, 3, padding=1),
+            nn.Conv2d(128, 256, 3, padding=1, bias=False),
             nn.BatchNorm2d(256),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+
+            # convo layer5
+            nn.Conv2d(256, 512, 3, padding=1, bias=False),
+            nn.BatchNorm2d(512),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
 
@@ -122,11 +112,11 @@ class CNNModel(nn.Module):
         )
 
         self.classifier = nn.Sequential(
-            nn.Dropout(0.5),
-            nn.Linear(256, 512),
+            nn.Linear(512, 4096),
             nn.ReLU(),
-            nn.Dropout(0.3),
-            nn.Linear(512, 4)
+            nn.Linear(4096, 1024),
+            nn.ReLU(),
+            nn.Linear(1024, 4)
         )
 
     def forward(self, x):
@@ -135,19 +125,9 @@ class CNNModel(nn.Module):
         return self.classifier(x)
 
 
-model = CNNModel().to(device)
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.0005, weight_decay=1e-5)
-scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.8)
-
-save_path = './model/trained_model.pth'
-
-# Ensure the directory exists before saving
-os.makedirs(os.path.dirname(save_path), exist_ok=True)
-
 
 # Train function
-def train_model(model, criterion, optimizer, scheduler, num_epochs=20, save_path='./model/improved_trained_model.pth'):
+def train_model(model, criterion, optimizer, scheduler, save_path, num_epochs=20):
     best_val_acc = 0
     for epoch in range(num_epochs):
         model.train()
@@ -223,7 +203,24 @@ def test_model(model):
     print(f"Macro-averaged Precision: {precision:.4f}, Recall: {recall:.4f}, F1-score: {f1_score:.4f}")
 
 
-train_model(model, criterion, optimizer, scheduler, num_epochs=20)
-model.load_state_dict(torch.load(save_path))
+
+
+model = CNNModel().to(device)
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(model.parameters(), lr=0.0005, weight_decay=1e-5)
+scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.8)
+
+save_path = 'model/improved_trained_model_5convo_75Epoch.pth'
+
+# Ensure the directory exists before saving
+os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+# ✅ Load the saved model before training
+model.load_state_dict(torch.load(save_path, weights_only=True))
+
+train_model(model, criterion, optimizer, scheduler, save_path, num_epochs=10)
+
+# ✅ Load the best saved weights again before testing
+model.load_state_dict(torch.load(save_path, weights_only=True))
 test_model(model)
 
