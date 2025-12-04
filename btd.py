@@ -207,18 +207,18 @@ def test_model(model):
 
 model = CNNModel().to(device)
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.0005, weight_decay=1e-5)
+optimizer = optim.Adam(model.parameters(), lr=0.0001, weight_decay=1e-5)
 scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.8)
 
-save_path = 'model/improved_trained_model_5convo_75Epoch.pth'
+save_path = 'model/improved_trained_model.pth'
 
 # Ensure the directory exists before saving
 os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
 # ✅ Load the saved model before training
-model.load_state_dict(torch.load(save_path, weights_only=True))
+# model.load_state_dict(torch.load(save_path, weights_only=True))
 
-train_model(model, criterion, optimizer, scheduler, save_path, num_epochs=10)
+train_model(model, criterion, optimizer, scheduler, save_path, num_epochs=25)
 
 # ✅ Load the best saved weights again before testing
 model.load_state_dict(torch.load(save_path, weights_only=True))
