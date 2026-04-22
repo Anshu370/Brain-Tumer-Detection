@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Brain Tumor Detection – System Diagrams</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --panel: #111827;
+    --border: #1e2d45;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --accent4: #f59e0b;
+    --accent5: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --node-bg: #162032;
+    --node-border: #2a4a6b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .page-header {
+    padding: 48px 60px 32px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, #0a0e1a 0%, #0d1a2e 100%);
+  }
+  .page-header .tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .page-header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.1;
+  }
+  .page-header h1 span { color: var(--accent); }
+  .page-header p {
+    margin-top: 10px;
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  /* ── NAV ── */
+  .nav-strip {
+    display: flex;
+    gap: 6px;
+    padding: 16px 60px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    flex-wrap: wrap;
+  }
+  .nav-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 6px 14px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .2s;
+  }
+  .nav-btn:hover, .nav-btn.active {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+    font-weight: 500;
+  }
+
+  /* ── MAIN ── */
+  .main { padding: 40px 60px 80px; }
+
+  .section {
+    margin-bottom: 80px;
+    display: none;
+  }
+  .section.active { display: block; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(0,212,255,.1);
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(0,212,255,.2);
+  }
+  .section-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  /* ── GENERIC DIAGRAM CANVAS ── */
+  .diagram-canvas {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .diagram-canvas::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(0,212,255,.04) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(124,58,237,.04) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* ── NODES / BOXES ── */
+  .node {
+    background: var(--node-bg);
+    border: 1.5px solid var(--node-border);
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    position: relative;
+    white-space: nowrap;
+    transition: box-shadow .2s;
+  }
+  .node:hover { box-shadow: 0 0 0 2px var(--accent); }
+  .node.blue  { border-color: var(--accent);  color: var(--accent);  background: rgba(0,212,255,.08); }
+  .node.purple{ border-color: var(--accent2); color: #c4b5fd;        background: rgba(124,58,237,.08); }
+  .node.green { border-color: var(--accent3); color: #6ee7b7;        background: rgba(16,185,129,.08); }
+  .node.amber { border-color: var(--accent4); color: #fcd34d;        background: rgba(245,158,11,.08); }
+  .node.red   { border-color: var(--accent5); color: #fca5a5;        background: rgba(239,68,68,.08); }
+  .node.circle {
+    border-radius: 50%;
+    width: 90px; height: 90px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; padding: 0;
+  }
+  .node.diamond {
+    transform: rotate(45deg);
+    width: 80px; height: 80px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0;
+  }
+  .node.diamond span { transform: rotate(-45deg); font-size: 10px; display: block; }
+
+  /* ── ARROWS ── */
+  svg.arrows {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
+  .arrow-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    fill: var(--muted);
+  }
+
+  /* ══════════════════════════════════════════
+     1.  CONTROL FLOW
+  ══════════════════════════════════════════ */
+  .cf-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    align-items: center;
+    justify-items: center;
+    position: relative;
+    min-height: 900px;
+  }
+  .cf-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    width: 100%;
+    margin: 0;
+    position: relative;
+    z-index: 2;
+  }
+  .cf-spacer { height: 48px; }
+  .arrow-down {
+    width: 2px;
+    height: 48px;
+    background: linear-gradient(to bottom, var(--accent), rgba(0,212,255,.2));
+    margin: 0 auto;
+    position: relative;
+  }
+  .arrow-down::after {
+    content: '';
+    position: absolute;
+    bottom: -6px; left: -4px;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 8px solid rgba(0,212,255,.6);
+  }
+  .arrow-right {
+    width: 40px; height: 2px;
+    background: linear-gradient(to right, var(--accent3), rgba(16,185,129,.2));
+    position: relative;
+    flex-shrink: 0;
+  }
+  .arrow-right::after {
+    content: '';
+    position: absolute;
+    right: -6px; top: -4px;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 8px solid rgba(16,185,129,.7);
+  }
+  .cf-branch {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  .cf-branch-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--accent4);
+  }
+  .cf-yes-no {
+    display: flex; align-items: center; gap: 0;
+  }
+  .cf-yes-no .branch-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    padding: 0 8px;
+  }
+
+  /* ══════════════════════════════════════════
+     2.  DFD COMMON
+  ══════════════════════════════════════════ */
+  .dfd-entity {
+    background: transparent;
+    border: 2px solid var(--accent4);
+    color: var(--accent4);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 10px 20px;
+    text-align: center;
+  }
+  .dfd-process {
+    border-radius: 50%;
+    background: rgba(124,58,237,.12);
+    border: 2px solid var(--accent2);
+    color: #c4b5fd;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 14px;
+    text-align: center;
+    min-width: 100px;
+    min-height: 100px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .dfd-store {
+    border-top: 2px solid var(--accent3);
+    border-bottom: 2px solid var(--accent3);
+    color: var(--accent3);
+    font-size: 11px;
+    padding: 8px 24px;
+    text-align: center;
+    background: rgba(16,185,129,.06);
+  }
+
+  /* layout helpers */
+  .flex-row { display: flex; align-items: center; gap: 16px; }
+  .flex-col  { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .center    { justify-content: center; }
+  .space-between { justify-content: space-between; }
+
+  /* ══════════════════════════════════════════
+     3. ER DIAGRAM
+  ══════════════════════════════════════════ */
+  .er-table {
+    border: 1.5px solid var(--node-border);
+    border-radius: 8px;
+    overflow: hidden;
+    min-width: 180px;
+    font-size: 12px;
+  }
+  .er-table-header {
+    padding: 10px 16px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    text-align: center;
+  }
+  .er-table-body { background: var(--node-bg); }
+  .er-field {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 14px;
+    border-top: 1px solid var(--border);
+    gap: 24px;
+  }
+  .er-field .fname { color: var(--text); }
+  .er-field .ftype {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .er-field.pk .fname { color: var(--accent4); font-weight: 600; }
+  .er-field.fk .fname { color: var(--accent3); font-style: italic; }
+
+  .er-doctor  .er-table-header { background: rgba(245,158,11,.15); color: var(--accent4); }
+  .er-patient .er-table-header { background: rgba(0,212,255,.12);   color: var(--accent);  }
+  .er-appt    .er-table-header { background: rgba(16,185,129,.12);  color: var(--accent3); }
+  .er-report  .er-table-header { background: rgba(124,58,237,.15);  color: #c4b5fd; }
+
+  .er-wrapper {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 40px;
+    align-items: center;
+    justify-items: center;
+  }
+  .er-rel {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 10px;
+    white-space: nowrap;
+  }
+
+  /* ══════════════════════════════════════════
+     4. ML DIAGRAM
+  ══════════════════════════════════════════ */
+  .ml-pipeline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .ml-stage {
+    background: var(--node-bg);
+    border: 1.5px solid var(--node-border);
+    border-radius: 10px;
+    padding: 18px 28px;
+    width: 100%;
+    max-width: 680px;
+    position: relative;
+  }
+  .ml-stage-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .ml-stage-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .ml-stage-detail {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .ml-stage.s1 { border-color: var(--accent);  }
+  .ml-stage.s1 .ml-stage-title { color: var(--accent); }
+  .ml-stage.s2 { border-color: var(--accent4); }
+  .ml-stage.s2 .ml-stage-title { color: var(--accent4); }
+  .ml-stage.s3 { border-color: var(--accent2); }
+  .ml-stage.s3 .ml-stage-title { color: #c4b5fd; }
+  .ml-stage.s4 { border-color: var(--accent3); }
+  .ml-stage.s4 .ml-stage-title { color: var(--accent3); }
+  .ml-stage.s5 { border-color: var(--accent5); }
+  .ml-stage.s5 .ml-stage-title { color: #fca5a5; }
+
+  .ml-arrow {
+    width: 2px;
+    height: 32px;
+    background: linear-gradient(to bottom, var(--accent), rgba(0,212,255,.1));
+    position: relative;
+  }
+  .ml-arrow::after {
+    content:'';
+    position: absolute;
+    bottom:-6px; left:-4px;
+    border-left:5px solid transparent;
+    border-right:5px solid transparent;
+    border-top:8px solid rgba(0,212,255,.6);
+  }
+
+  .ml-conv-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .ml-conv-block {
+    background: rgba(0,212,255,.06);
+    border: 1px solid rgba(0,212,255,.2);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 11px;
+    text-align: center;
+    color: #a5d8ff;
+    min-width: 90px;
+  }
+  .ml-conv-block .cb-title { font-weight: 600; font-size: 10px; color: var(--accent); }
+
+  .ml-classes {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px;
+  }
+  .ml-class-pill {
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .ml-class-pill.g { background: rgba(239,68,68,.15);   color: #fca5a5; border: 1px solid rgba(239,68,68,.3); }
+  .ml-class-pill.m { background: rgba(245,158,11,.15);  color: #fcd34d; border: 1px solid rgba(245,158,11,.3); }
+  .ml-class-pill.n { background: rgba(16,185,129,.15);  color: #6ee7b7; border: 1px solid rgba(16,185,129,.3); }
+  .ml-class-pill.p { background: rgba(124,58,237,.15);  color: #c4b5fd; border: 1px solid rgba(124,58,237,.3); }
+
+  /* caption */
+  .caption {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 18px;
+  }
+
+  /* section tabs all visible toggle */
+  .show-all-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 6px 14px;
+    border-radius: 4px;
+    border: 1px solid var(--accent2);
+    background: rgba(124,58,237,.1);
+    color: #c4b5fd;
+    cursor: pointer;
+    margin-left: auto;
+    transition: all .2s;
+  }
+  .show-all-btn:hover { background: var(--accent2); color: #fff; }
+
+  /* divider */
+  .h-line {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 40px 0;
+  }
+
+  /* legend */
+  .legend {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--muted);
+    margin-top: 20px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; }
+  .legend-dot  { width: 10px; height: 10px; border-radius: 2px; }
+
+  /* print */
+  @media print {
+    .nav-strip, .show-all-btn { display: none !important; }
+    .section { display: block !important; page-break-after: always; }
+    body { background: #fff; color: #000; }
+    .diagram-canvas { border: 1px solid #ccc; background: #f9f9f9; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="page-header">
+  <div class="tag">Chapter 6 &amp; 7 · System Overview &amp; Data Flow</div>
+  <h1>Brain Tumor Detection System<br/><span>Thesis Diagrams</span></h1>
+  <p>Control Flow · DFD Level 0 · DFD Level 1 · ER Diagram · ML Model Architecture</p>
+</div>
+
+<!-- NAV -->
+<div class="nav-strip">
+  <button class="nav-btn active" onclick="show('cf')">Control Flow</button>
+  <button class="nav-btn" onclick="show('dfd0')">DFD Level 0</button>
+  <button class="nav-btn" onclick="show('dfd1')">DFD Level 1</button>
+  <button class="nav-btn" onclick="show('er')">ER Diagram</button>
+  <button class="nav-btn" onclick="show('ml')">ML Model</button>
+  <button class="show-all-btn" onclick="showAll()">Show All</button>
+</div>
+
+<div class="main">
+
+<!-- ════════════════════════════════
+     SECTION 1 — CONTROL FLOW
+════════════════════════════════ -->
+<div class="section active" id="sec-cf">
+  <div class="section-header">
+    <span class="section-num">§ 6.1</span>
+    <h2>Control Flow Diagram</h2>
+  </div>
+
+  <div class="diagram-canvas">
+    <div class="cf-grid">
+
+      <!-- START -->
+      <div class="cf-row">
+        <div class="node circle blue">START</div>
+      </div>
+      <div class="arrow-down" style="height:40px"></div>
+
+      <!-- User Login -->
+      <div class="cf-row">
+        <div class="node blue" style="min-width:220px">User Login / Authentication</div>
+      </div>
+      <div class="arrow-down"></div>
+
+      <!-- Role Decision -->
+      <div class="cf-row">
+        <div class="node amber" style="min-width:220px; border-radius:4px; padding:14px 18px">
+          ◆ Role Check<br/><span style="font-size:10px;color:var(--muted)">Doctor / Patient / Admin?</span>
+        </div>
+      </div>
+
+      <!-- Branch row -->
+      <div class="cf-row" style="gap:0; align-items:flex-start; margin-top:20px">
+        <!-- Doctor -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:1">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent4)">DOCTOR</span>
+          <div class="node blue" style="min-width:170px">Doctor Dashboard</div>
+          <div class="arrow-down"></div>
+          <div class="node green" style="min-width:170px">View Appointments</div>
+          <div class="arrow-down"></div>
+          <div class="node green" style="min-width:170px">Upload MRI Scan</div>
+          <div class="arrow-down"></div>
+          <div class="node purple" style="min-width:170px">Run AI Analysis</div>
+          <div class="arrow-down"></div>
+          <div class="node purple" style="min-width:170px">View Prediction Result</div>
+          <div class="arrow-down"></div>
+          <div class="node green" style="min-width:170px">Generate / Save Report</div>
+        </div>
+
+        <!-- divider -->
+        <div style="width:2px;background:var(--border);align-self:stretch;margin:0 24px"></div>
+
+        <!-- Patient -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:1">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent4)">PATIENT</span>
+          <div class="node blue" style="min-width:170px">Patient Dashboard</div>
+          <div class="arrow-down"></div>
+          <div class="node green" style="min-width:170px">Book Appointment</div>
+          <div class="arrow-down"></div>
+          <div class="node green" style="min-width:170px">View Reports</div>
+          <div class="arrow-down"></div>
+          <div class="node amber" style="min-width:170px">◆ Report Available?</div>
+          <div class="cf-row" style="gap:0">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent3)">YES</span>
+              <div class="arrow-right" style="width:30px"></div>
+            </div>
+            <div class="node green" style="min-width:120px;font-size:11px">Download PDF</div>
+          </div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent5)">NO → Wait</div>
+        </div>
+
+        <!-- divider -->
+        <div style="width:2px;background:var(--border);align-self:stretch;margin:0 24px"></div>
+
+        <!-- Admin -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:1">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent4)">ADMIN</span>
+          <div class="node blue" style="min-width:170px">Admin Panel</div>
+          <div class="arrow-down"></div>
+          <div class="node red" style="min-width:170px">Manage Users</div>
+          <div class="arrow-down"></div>
+          <div class="node red" style="min-width:170px">Manage Appointments</div>
+          <div class="arrow-down"></div>
+          <div class="node red" style="min-width:170px">System Monitoring</div>
+        </div>
+      </div>
+
+      <!-- Merge back -->
+      <div style="height:32px"></div>
+      <div class="cf-row">
+        <div class="node blue" style="min-width:220px">Logout / Session End</div>
+      </div>
+      <div class="arrow-down" style="height:40px"></div>
+      <div class="cf-row">
+        <div class="node circle blue">END</div>
+      </div>
+
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>Process / State</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent4)"></div>Decision</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent3)"></div>Data Operation</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div>ML Module</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent5)"></div>Admin Operation</div>
+    </div>
+  </div>
+  <p class="caption">Figure 6.1 — Control Flow Diagram of the Brain Tumor Detection Web Application</p>
+</div>
+
+
+<!-- ════════════════════════════════
+     SECTION 2 — DFD LEVEL 0
+════════════════════════════════ -->
+<div class="section" id="sec-dfd0">
+  <div class="section-header">
+    <span class="section-num">§ 6.2</span>
+    <h2>Data Flow Diagram — Level 0 (Context Diagram)</h2>
+  </div>
+
+  <div class="diagram-canvas" style="min-height:420px; display:flex; align-items:center; justify-content:center;">
+
+    <div style="display:grid; grid-template-columns:180px 1fr 180px; grid-template-rows:auto auto auto; gap:32px 48px; align-items:center; width:100%; max-width:900px;">
+
+      <!-- Row 1 -->
+      <div class="dfd-entity" style="grid-column:1; grid-row:1">👨‍⚕️ Doctor</div>
+      <div style="grid-column:2; grid-row:1; display:flex; align-items:center; gap:0">
+        <div style="flex:1; height:2px; background:var(--accent4)"></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--accent4);padding:0 8px;white-space:nowrap">MRI Upload,<br/>Credentials</div>
+        <div style="flex:1; height:2px; background:var(--accent4)"></div>
+      </div>
+      <!-- central process spans rows -->
+      <div class="dfd-process" style="grid-column:2;grid-row:1/4;font-size:13px;font-weight:700;min-width:160px;min-height:160px;align-self:center;justify-self:center;font-family:'Syne',sans-serif">
+        Brain Tumor<br/>Detection<br/>System<br/><span style="font-size:10px;font-weight:400;color:var(--muted)">Process 0</span>
+      </div>
+
+      <!-- Row 1 right -->
+      <div style="grid-column:3;grid-row:1;display:flex;align-items:center;gap:0">
+        <div style="flex:1;height:2px;background:var(--accent4)"></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--accent4);padding:0 8px;white-space:nowrap">Prediction,<br/>Report</div>
+        <div style="flex:1;height:2px;background:var(--accent4)"></div>
+      </div>
+      <!-- spacer col 3 will be entity -->
+      <div></div><!-- placeholder top-right -->
+
+      <!-- Row 2 left -->
+      <div class="dfd-entity" style="grid-column:1; grid-row:2">🧑 Patient</div>
+      <div style="grid-column:3; grid-row:2; display:flex; flex-direction:column; align-items:center; gap:10px">
+        <div class="dfd-entity">📋 Diagnosis Report</div>
+      </div>
+
+      <!-- Row 3 left -->
+      <div class="dfd-entity" style="grid-column:1; grid-row:3">🛡️ Admin</div>
+      <div style="grid-column:3; grid-row:3; display:flex; flex-direction:column; align-items:center; gap:10px">
+        <div class="dfd-entity">🗄️ Database</div>
+      </div>
+
+    </div>
+
+    <!-- flow labels overlaid using absolute positioned spans -->
+  </div>
+
+  <!-- Simplified flow table -->
+  <div style="margin-top:24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:16px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent4);margin-bottom:8px">EXTERNAL ENTITIES → SYSTEM</div>
+      <div style="font-size:12px;color:var(--muted);line-height:2">
+        Doctor → Login credentials, MRI scan<br/>
+        Patient → Appointment request<br/>
+        Admin → System config, user mgmt
+      </div>
+    </div>
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:16px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent3);margin-bottom:8px">SYSTEM → EXTERNAL ENTITIES</div>
+      <div style="font-size:12px;color:var(--muted);line-height:2">
+        System → Doctor: AI prediction result<br/>
+        System → Patient: Appointment status, report<br/>
+        System → Admin: Analytics, logs
+      </div>
+    </div>
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:16px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent2);margin-bottom:8px">SYSTEM ↔ DATA STORES</div>
+      <div style="font-size:12px;color:var(--muted);line-height:2">
+        System ↔ User DB: Auth data<br/>
+        System ↔ MRI DB: Scan files<br/>
+        System ↔ Report DB: Diagnoses
+      </div>
+    </div>
+  </div>
+  <p class="caption">Figure 6.2 — Level 0 DFD (Context Diagram) — Brain Tumor Detection System</p>
+</div>
+
+
+<!-- ════════════════════════════════
+     SECTION 3 — DFD LEVEL 1
+════════════════════════════════ -->
+<div class="section" id="sec-dfd1">
+  <div class="section-header">
+    <span class="section-num">§ 6.3</span>
+    <h2>Data Flow Diagram — Level 1</h2>
+  </div>
+
+  <div class="diagram-canvas">
+
+    <!-- Row: External + P1 -->
+    <div style="display:flex;flex-direction:column;gap:0;align-items:center">
+
+      <!-- Entities top row -->
+      <div style="display:flex;gap:40px;justify-content:center;align-items:flex-start;width:100%">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div class="dfd-entity">👨‍⚕️ Doctor</div>
+          <div class="arrow-down"></div>
+          <div class="dfd-process" style="min-width:110px;min-height:110px;font-size:11px">
+            <div style="text-align:center">1.0<br/>User<br/>Authentication</div>
+          </div>
+          <div class="arrow-down"></div>
+          <div class="dfd-store">D1: User DB</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:90px">
+          <div class="dfd-process" style="min-width:110px;min-height:110px;font-size:11px;border-color:var(--accent4);color:var(--accent4);background:rgba(245,158,11,.08)">
+            <div style="text-align:center">2.0<br/>Appointment<br/>Management</div>
+          </div>
+          <div class="arrow-down"></div>
+          <div class="dfd-store">D2: Appointments DB</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div class="dfd-entity">🧑 Patient</div>
+          <div class="arrow-down"></div>
+          <div class="dfd-process" style="min-width:110px;min-height:110px;font-size:11px;border-color:var(--accent3);color:var(--accent3);background:rgba(16,185,129,.08)">
+            <div style="text-align:center">3.0<br/>MRI Upload &amp;<br/>Processing</div>
+          </div>
+          <div class="arrow-down"></div>
+          <div class="dfd-store">D3: MRI Store</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:90px">
+          <div class="dfd-process" style="min-width:110px;min-height:110px;font-size:11px;border-color:#c4b5fd;color:#c4b5fd;background:rgba(124,58,237,.1)">
+            <div style="text-align:center">4.0<br/>AI/ML<br/>Classification</div>
+          </div>
+          <div class="arrow-down"></div>
+          <div class="dfd-store">D4: Model Weights</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div class="dfd-entity">📄 Reports</div>
+          <div class="arrow-down"></div>
+          <div class="dfd-process" style="min-width:110px;min-height:110px;font-size:11px;border-color:var(--accent5);color:#fca5a5;background:rgba(239,68,68,.08)">
+            <div style="text-align:center">5.0<br/>Report<br/>Generation</div>
+          </div>
+          <div class="arrow-down"></div>
+          <div class="dfd-store">D5: Reports DB</div>
+        </div>
+      </div>
+
+      <!-- Flow description table -->
+      <div style="margin-top:40px;width:100%">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:12px">DATA FLOWS BETWEEN PROCESSES</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;font-size:11px">
+          <div style="background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:6px;padding:12px">
+            <div style="color:var(--accent);font-weight:600;margin-bottom:4px">1.0 → 2.0</div>
+            <div style="color:var(--muted)">Authenticated user session passed to Appointment Management</div>
+          </div>
+          <div style="background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.15);border-radius:6px;padding:12px">
+            <div style="color:var(--accent4);font-weight:600;margin-bottom:4px">2.0 → 3.0</div>
+            <div style="color:var(--muted)">Confirmed appointment triggers MRI upload permission</div>
+          </div>
+          <div style="background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.15);border-radius:6px;padding:12px">
+            <div style="color:var(--accent3);font-weight:600;margin-bottom:4px">3.0 → 4.0</div>
+            <div style="color:var(--muted)">Preprocessed MRI tensor sent to CNN classification</div>
+          </div>
+          <div style="background:rgba(124,58,237,.05);border:1px solid rgba(124,58,237,.15);border-radius:6px;padding:12px">
+            <div style="color:#c4b5fd;font-weight:600;margin-bottom:4px">4.0 → 5.0</div>
+            <div style="color:var(--muted)">Prediction label + confidence score passed to Report Generator</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <p class="caption">Figure 6.3 — Level 1 DFD — Decomposed processes of the Brain Tumor Detection System</p>
+</div>
+
+
+<!-- ════════════════════════════════
+     SECTION 4 — ER DIAGRAM
+════════════════════════════════ -->
+<div class="section" id="sec-er">
+  <div class="section-header">
+    <span class="section-num">§ 6.4</span>
+    <h2>Entity Relationship Diagram</h2>
+  </div>
+
+  <div class="diagram-canvas">
+
+    <div style="display:grid;grid-template-columns:1fr 80px 1fr;grid-template-rows:auto 60px auto;gap:0 24px;align-items:center;justify-items:center;max-width:860px;margin:0 auto">
+
+      <!-- Row 1: Doctor | rel | Patient -->
+      <div class="er-table er-doctor" style="width:100%">
+        <div class="er-table-header">👨‍⚕️ Doctor</div>
+        <div class="er-table-body">
+          <div class="er-field pk"><span class="fname">doctor_id</span><span class="ftype">PK · INT</span></div>
+          <div class="er-field"><span class="fname">first_name</span><span class="ftype">VARCHAR</span></div>
+          <div class="er-field"><span class="fname">last_name</span><span class="ftype">VARCHAR</span></div>
+          <div class="er-field"><span class="fname">email</span><span class="ftype">VARCHAR</span></div>
+          <div class="er-field"><span class="fname">specialization</span><span class="ftype">VARCHAR</span></div>
+          <div class="er-field"><span class="fname">phone</span><span class="ftype">VARCHAR</span></div>
+          <div class="er-field"><span class="fname">password_hash</span><span class="ftype">TEXT</span></div>
+          <div class="er-field"><span class="fname">created_at</span><span class="ftype">DATETIME</span></div>
+        </div>
+      </div>
+
+      <!-- Relation Doctor ↔ Patient -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)">1</span>
+        <div style="width:80px;height:2px;background:var(--border);position:relative">
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--panel);padding:2px 6px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--accent4);white-space:nowrap">treats</div>
+        </div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)">N</span>
+      </div>
+
+      <div class="er-table er-patient" style="width:100%">
+        <div class="er-table-header">🧑 Patient</div>
+        <div class="er-table-body">
+          <div class="er-field pk"><span class="fname">patient_id</span><span class="ftype">PK · INT</span></div>
+          <div class="er-field"><span class="fname">first_name</span><span class="ftype">VARCHAR</span></div>
+          <div class="er-field"><span class="fname">last_name</span><span class="ftype">VARCHAR</span></div>
+          <div class="er-field"><span class="fname">email</span><span class="ftype">VARCHAR</span></div>
+          <div class="er-field"><span class="fname">date_of_birth</span><span class="ftype">DATE</span></div>
+          <div class="er-field"><span class="fname">gender</span><span class="ftype">ENUM</span></div>
+          <div class="er-field"><span class="fname">phone</span><span class="ftype">VARCHAR</span></div>
+          <div class="er-field"><span class="fname">address</span><span class="ftype">TEXT</span></div>
+        </div>
+      </div>
+
+      <!-- Vertical lines row -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0">
+        <div style="width:2px;height:60px;background:var(--border);position:relative">
+          <div style="position:absolute;top:50%;left:12px;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);white-space:nowrap">1:N</div>
+        </div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted)">creates</span>
+      </div>
+      <!-- center mid spacer -->
+      <div></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0">
+        <div style="width:2px;height:60px;background:var(--border);position:relative">
+          <div style="position:absolute;top:50%;left:12px;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);white-space:nowrap">1:N</div>
+        </div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted)">books</span>
+      </div>
+
+      <!-- Row 3: Appointment center, MRI Report right -->
+      <div class="er-table er-appt" style="width:100%">
+        <div class="er-table-header">📅 Appointment</div>
+        <div class="er-table-body">
+          <div class="er-field pk"><span class="fname">appointment_id</span><span class="ftype">PK · INT</span></div>
+          <div class="er-field fk"><span class="fname">doctor_id</span><span class="ftype">FK → Doctor</span></div>
+          <div class="er-field fk"><span class="fname">patient_id</span><span class="ftype">FK → Patient</span></div>
+          <div class="er-field"><span class="fname">appointment_date</span><span class="ftype">DATETIME</span></div>
+          <div class="er-field"><span class="fname">status</span><span class="ftype">ENUM</span></div>
+          <div class="er-field"><span class="fname">notes</span><span class="ftype">TEXT</span></div>
+          <div class="er-field"><span class="fname">created_at</span><span class="ftype">DATETIME</span></div>
+        </div>
+      </div>
+
+      <!-- rel Appt ↔ MRI -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)">1</span>
+        <div style="width:80px;height:2px;background:var(--border);position:relative">
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--panel);padding:2px 6px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--accent4);white-space:nowrap">generates</div>
+        </div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)">1</span>
+      </div>
+
+      <div class="er-table er-report" style="width:100%">
+        <div class="er-table-header">🧠 MRI Report</div>
+        <div class="er-table-body">
+          <div class="er-field pk"><span class="fname">report_id</span><span class="ftype">PK · INT</span></div>
+          <div class="er-field fk"><span class="fname">appointment_id</span><span class="ftype">FK → Appt</span></div>
+          <div class="er-field fk"><span class="fname">doctor_id</span><span class="ftype">FK → Doctor</span></div>
+          <div class="er-field fk"><span class="fname">patient_id</span><span class="ftype">FK → Patient</span></div>
+          <div class="er-field"><span class="fname">mri_image_path</span><span class="ftype">TEXT</span></div>
+          <div class="er-field"><span class="fname">prediction_label</span><span class="ftype">ENUM</span></div>
+          <div class="er-field"><span class="fname">confidence_score</span><span class="ftype">FLOAT</span></div>
+          <div class="er-field"><span class="fname">doctor_remarks</span><span class="ftype">TEXT</span></div>
+          <div class="er-field"><span class="fname">created_at</span><span class="ftype">DATETIME</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Legend -->
+    <div class="legend" style="margin-top:32px">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent4)"></div>PK — Primary Key</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent3)"></div>FK — Foreign Key</div>
+      <div class="legend-item"><div class="legend-dot" style="width:24px;height:2px;background:var(--border)"></div>Relationship</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)">Cardinalities: 1:N (one-to-many) &nbsp;|&nbsp; 1:1 (one-to-one)</div>
+    </div>
+  </div>
+  <p class="caption">Figure 6.4 — ER Diagram: Doctor · Patient · Appointment · MRI Report</p>
+</div>
+
+
+<!-- ════════════════════════════════
+     SECTION 5 — ML MODEL
+════════════════════════════════ -->
+<div class="section" id="sec-ml">
+  <div class="section-header">
+    <span class="section-num">§ 7.1</span>
+    <h2>ML Model Architecture — CNN Brain Tumor Classifier</h2>
+  </div>
+
+  <div class="diagram-canvas">
+    <div class="ml-pipeline">
+
+      <!-- Stage 1: Input -->
+      <div class="ml-stage s1">
+        <div class="ml-stage-label">Stage 1 — Input</div>
+        <div class="ml-stage-title">MRI Image Input &amp; Preprocessing</div>
+        <div class="ml-stage-detail">
+          Raw MRI image (grayscale/RGB) → Resize to <strong style="color:var(--accent)">224 × 224</strong> pixels →
+          Random Horizontal Flip · Random Rotation ±10° · Color Jitter (brightness, contrast) →
+          ToTensor → Normalize (μ=[0.485, 0.456, 0.406], σ=[0.229, 0.224, 0.225])
+        </div>
+      </div>
+      <div class="ml-arrow"></div>
+
+      <!-- Stage 2: Feature Extraction -->
+      <div class="ml-stage s2">
+        <div class="ml-stage-label">Stage 2 — Feature Extraction (CNN Backbone)</div>
+        <div class="ml-stage-title">5× Convolutional Blocks</div>
+        <div class="ml-conv-row">
+          <div class="ml-conv-block">
+            <div class="cb-title">Conv Block 1</div>
+            Conv2d 3→32<br/>BN · ReLU<br/>MaxPool 2×2
+          </div>
+          <div class="ml-conv-block">
+            <div class="cb-title">Conv Block 2</div>
+            Conv2d 32→64<br/>BN · ReLU<br/>MaxPool 2×2
+          </div>
+          <div class="ml-conv-block">
+            <div class="cb-title">Conv Block 3</div>
+            Conv2d 64→128<br/>BN · ReLU<br/>MaxPool 2×2
+          </div>
+          <div class="ml-conv-block">
+            <div class="cb-title">Conv Block 4</div>
+            Conv2d 128→256<br/>BN · ReLU<br/>MaxPool 2×2
+          </div>
+          <div class="ml-conv-block">
+            <div class="cb-title">Conv Block 5</div>
+            Conv2d 256→512<br/>BN · ReLU<br/>MaxPool 2×2
+          </div>
+        </div>
+        <div class="ml-stage-detail" style="margin-top:10px">
+          Each block: Conv2d (3×3, padding=1, bias=False) → BatchNorm2d → ReLU → MaxPool2d(2,2)
+          → <strong style="color:var(--accent4)">AdaptiveAvgPool2d(1,1)</strong> → Feature Vector [512]
+        </div>
+      </div>
+      <div class="ml-arrow"></div>
+
+      <!-- Stage 3: Flatten -->
+      <div class="ml-stage s3" style="max-width:680px">
+        <div class="ml-stage-label">Stage 3 — Flatten</div>
+        <div class="ml-stage-title">Global Feature Flatten</div>
+        <div class="ml-stage-detail">
+          torch.flatten(x, 1) → Output shape: <strong style="color:#c4b5fd">[batch_size, 512]</strong>
+        </div>
+      </div>
+      <div class="ml-arrow"></div>
+
+      <!-- Stage 4: Classifier -->
+      <div class="ml-stage s4">
+        <div class="ml-stage-label">Stage 4 — Fully Connected Classifier</div>
+        <div class="ml-stage-title">3-Layer MLP Head</div>
+        <div class="ml-conv-row">
+          <div class="ml-conv-block" style="border-color:rgba(16,185,129,.3);color:#6ee7b7">
+            <div class="cb-title" style="color:var(--accent3)">FC Layer 1</div>
+            Linear(512 → 4096)<br/>ReLU
+          </div>
+          <div style="display:flex;align-items:center;color:var(--muted);font-size:18px;padding:0 4px">→</div>
+          <div class="ml-conv-block" style="border-color:rgba(16,185,129,.3);color:#6ee7b7">
+            <div class="cb-title" style="color:var(--accent3)">FC Layer 2</div>
+            Linear(4096 → 1024)<br/>ReLU
+          </div>
+          <div style="display:flex;align-items:center;color:var(--muted);font-size:18px;padding:0 4px">→</div>
+          <div class="ml-conv-block" style="border-color:rgba(16,185,129,.3);color:#6ee7b7">
+            <div class="cb-title" style="color:var(--accent3)">FC Layer 3</div>
+            Linear(1024 → 4)<br/>Logits
+          </div>
+        </div>
+        <div class="ml-stage-detail" style="margin-top:10px">
+          Optimizer: Adam (lr=0.0001, weight_decay=1e-5) · Scheduler: StepLR (step=5, γ=0.8) ·
+          Loss: CrossEntropyLoss · Epochs: 25 · Batch size: 32
+        </div>
+      </div>
+      <div class="ml-arrow"></div>
+
+      <!-- Stage 5: Output -->
+      <div class="ml-stage s5">
+        <div class="ml-stage-label">Stage 5 — Output</div>
+        <div class="ml-stage-title">Softmax Classification → Tumor Class</div>
+        <div class="ml-classes">
+          <div class="ml-class-pill g">Glioma</div>
+          <div class="ml-class-pill m">Meningioma</div>
+          <div class="ml-class-pill n">No Tumor</div>
+          <div class="ml-class-pill p">Pituitary</div>
+        </div>
+        <div class="ml-stage-detail" style="margin-top:10px">
+          argmax(softmax(logits)) → predicted class + confidence score (%) →
+          stored in MRI Report · Evaluated with: Precision, Recall, F1-score, Confusion Matrix
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Architecture summary -->
+    <div style="margin-top:32px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+      <div style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:8px;padding:14px;text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--accent)">5</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Conv Layers</div>
+      </div>
+      <div style="background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);border-radius:8px;padding:14px;text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#c4b5fd">512</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Feature Vector Size</div>
+      </div>
+      <div style="background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.15);border-radius:8px;padding:14px;text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--accent3)">4</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Output Classes</div>
+      </div>
+      <div style="background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.15);border-radius:8px;padding:14px;text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--accent4)">25</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Training Epochs</div>
+      </div>
+    </div>
+  </div>
+  <p class="caption">Figure 7.1 — CNN Model Architecture for Brain Tumor Classification (based on btd.py)</p>
+</div>
+
+</div><!-- /main -->
+
+<script>
+  function show(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('sec-' + id).classList.add('active');
+    event.target.classList.add('active');
+  }
+  function showAll() {
+    document.querySelectorAll('.section').forEach(s => s.classList.add('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  }
+</script>
+</body>
+</html>
