@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+torch
+torchvision
+pillow
+numpy
+opencv-python
+scikit-learn
+huggingface_hub
