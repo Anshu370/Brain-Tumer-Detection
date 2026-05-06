@@ -39,7 +39,8 @@ transform = transforms.Compose([
 # Load model
 MODEL_PATH = hf_hub_download(
     repo_id="Anshu370/brain-tumor-detection",
-    filename="improved_trained_model_5convo_25Epoch_98%Accuracy.pth"
+    filename="improved_trained_model_5convo_25Epoch_98%Accuracy.pth",
+    token=os.getenv("HF_TOKEN")
 )
 
 model = CNNModel().to(device)
